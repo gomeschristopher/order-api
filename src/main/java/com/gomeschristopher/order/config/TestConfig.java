@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import com.gomeschristopher.order.entities.Role;
 import com.gomeschristopher.order.entities.Category;
 import com.gomeschristopher.order.entities.Order;
 import com.gomeschristopher.order.entities.OrderItem;
@@ -15,6 +16,7 @@ import com.gomeschristopher.order.entities.Payment;
 import com.gomeschristopher.order.entities.Product;
 import com.gomeschristopher.order.entities.User;
 import com.gomeschristopher.order.entities.enums.OrderStatus;
+import com.gomeschristopher.order.repositories.RoleRepository;
 import com.gomeschristopher.order.repositories.CategoryRepository;
 import com.gomeschristopher.order.repositories.OrderItemRepository;
 import com.gomeschristopher.order.repositories.OrderRepository;
@@ -39,11 +41,26 @@ public class TestConfig implements CommandLineRunner {
 	
 	@Autowired
 	private OrderItemRepository orderItemRepository;
+	
+	@Autowired
+	private RoleRepository roleRepository;
 
 	@Override
 	public void run(String... args) throws Exception {
-		User u1 = new User(null, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-		User u2 = new User(null, "Alex Green", "alex@gmail.com", "977777777", "123456");
+		
+		Role role1 = new Role(null, "ROLE_USER");
+		Role role2 = new Role(null, "ROLE_MANAGER");
+		Role role3 = new Role(null, "ROLE_ADMIN");
+		roleRepository.saveAll(Arrays.asList(role1, role2, role3));
+		
+		User u1 = new User(null, "Maria Brown", "maria@gmail.com", "988888888", "{noop}123", true);
+		User u2 = new User(null, "Alex Green", "alex@gmail.com", "977777777", "{noop}123", true);
+		userRepository.saveAll(Arrays.asList(u1, u2));
+		
+		u1.getRoles().add(role1);
+		u2.getRoles().add(role1);
+		u2.getRoles().add(role2);
+		u2.getRoles().add(role3);
 		userRepository.saveAll(Arrays.asList(u1, u2));
 		
 		Order o1 = new Order(null, Instant.parse("2019-06-20T19:53:07Z"), u1, OrderStatus.PAID);
